@@ -42,7 +42,7 @@ def mensagem_post():
         open('mensagens.txt', 'w+')
 
     with open('mensagens.txt', 'a') as tmpFile:
-        mensagem = '\n{"user":"'+ request.form.get('user', '')+'","mensagem":"'+request.form.get('mensagem', '') +'"}'
+        mensagem = '{"user":"'+ request.form.get('user', '')+'","mensagem":"'+request.form.get('mensagem', '') +'"}\n'
         tmpFile.write(mensagem)
 
     return 'TRUE'

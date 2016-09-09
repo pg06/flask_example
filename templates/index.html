@@ -112,17 +112,7 @@
       atualizarMensagens('/mensagem/');
     }, 400);
 
-    document.getElementById('form').addEventListener('onsubmit', function() {
-        event.preventDefault();
-        console.log(1)
-        if (document.getElementById('quadro-enviar').textContent === '') {
-          return false;
-        }
-        return false;
-    });
-
     function enviarMensagem(event,element) {
-      console.log(2)
       if (event.keyCode === 13) {
         event.preventDefault();
         if (document.getElementById('quadro-enviar').textContent === '') {
