@@ -1,0 +1,178 @@
+<html>
+<head>
+    <title>Meu Site</title>
+    <style type="text/css">
+      body {
+        font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 14px;
+        line-height: 1.42857143;
+        color: #333;
+      }
+      #aviso {
+        padding: 5px 10px;
+        width: 300px;
+      }
+      #aviso > #aviso-lista {
+        padding: 0;
+        background: #FDFDFD;
+        cursor: pointer;
+      }
+      #aviso > #aviso-lista > #aviso-lista-item:hover {
+        background: #FBFBFB;
+      }
+      #aviso > #aviso-lista > #aviso-lista-item:active {
+        background: #F9F9F9;
+      }
+      #aviso > #aviso-lista > #aviso-lista-item {
+        list-style: none;
+        padding: 5px;
+        border: 1px solid #CCC;
+        text-align: left;
+        -webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+        -webkit-touch-callout: none !important;
+          -webkit-user-select: none !important;
+           -khtml-user-select: none !important;
+             -moz-user-select: none !important;
+              -ms-user-select: none !important;
+                  user-select: none !important;
+      }
+      #aviso > #aviso-lista > #aviso-lista-item:not(:last-child) {
+        border-bottom: 0;
+      }
+      .centraliza {
+        text-align: center;
+        margin: 0 auto;
+      }
+      #quadro {
+        width: 300px;
+      }
+      #quadro > div, #quadro > form {
+        text-align: left;
+      }
+      #quadro-mensagem {
+        border: 1px solid rgba(155,155,155,.1);
+        border-radius: 4px;
+        padding: 5px 10px;
+        height: 300px;
+        background: #FDFDFD;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+      }
+      #quadro-enviar {
+        width: 100%;
+        background: #FDFDFD;
+        padding-top: 2px;
+        border-color: #DDD;
+        border-radius: 4px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+      }
+      #usuario {
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      #quadro-usuario {
+        width: 100%;
+        background: #FDFDFD;
+      }
+      [contenteditable=true]:focus {
+        outline: none;
+      }
+      [contenteditable=true]:empty:before{
+        content: attr(placeholder);
+        color: #DEDEDE;
+        display: block; /* For Firefox */
+      }
+      .input-hidden {
+        position: absolute;
+        top: -100000px
+      }
+    </style>
+<body>
+  <div id="aviso" class="centraliza">
+    <div id="aviso-lista">
+      {% for aviso in avisos %}
+        <div id="aviso-lista-item" onclick="alert(this.textContent)"><b>{{aviso[0]}}# Aviso:</b> {{aviso[1]}}</div>
+      {% endfor %}
+    </div>
+  </div>
+  <br>
+  <br>
+  <div id="quadro" class="centraliza">
+    <div id="quadro-titulo">Deixe sua mensagem aqui</div>
+    <div id="quadro-mensagem"></div>
+    <form id="form" action="/mensagem/" method="post">
+      <div id="quadro-enviar" name="mensagem" contenteditable="true" placeholder="Digite a mensagem..." onkeydown="enviarMensagem(event,this);"></div>
+      <input id="quadro-usuario" name="user1" value="usuario1" class="input-hidden">
+    </form>
+  </div>
+  <script type="text/javascript">
+    var mensagens;
+    setInterval(function () {
+      atualizarMensagens('/mensagem/');
+    }, 400);
+
+    document.getElementById('form').addEventListener('onsubmit', function() {
+        event.preventDefault();
+        console.log(1)
+        if (document.getElementById('quadro-enviar').textContent === '') {
+          return false;
+        }
+        return false;
+    });
+
+    function enviarMensagem(event,element) {
+      console.log(2)
+      if (event.keyCode === 13) {
+        event.preventDefault();
+        if (document.getElementById('quadro-enviar').textContent === '') {
+          return;
+        }
+        var msg = document.getElementById('quadro-enviar').textContent || '';
+        var user = document.getElementById('quadro-usuario').value || '';
+
+        var http = new XMLHttpRequest();
+        var url = "/mensagem/";
+        var params = "user="+user+"&"+"mensagem="+msg;
+        http.open("POST", url, true);
+
+        //Send the proper header information along with the request
+        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+        http.onreadystatechange = function() {//Call a function when the state changes.
+            if(http.readyState == 4 && http.status == 200) {
+            }
+        }
+        http.send(params);
+        document.getElementById('quadro-enviar').innerHTML = '';
+      }
+    }
+
+    function atualizarMensagens(url) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', encodeURI(url));
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          ajaxResponse = JSON.parse(xhr.responseText).mensagens;
+          if (ajaxResponse.length) {
+            if (JSON.stringify(mensagens) === JSON.stringify(ajaxResponse)) return;
+            mensagens = ajaxResponse;
+            document.getElementById("quadro-mensagem").textContent = '';
+            for (i=0; i<mensagens.length;i++) {
+              var mensagem = '<b id="usuario">' + 
+                              mensagens[i].user + 
+                                       '</b>: ' + 
+                          mensagens[i].mensagem + 
+                          '<br>';
+              document.getElementById("quadro-mensagem").innerHTML += mensagem;
+            }
+          }
+        } else {
+          console.log('Request ERROR. STATUS ' + xhr.status)
+        }
+      }
+      xhr.send();
+    }
+  </script>
+</body>
+</html>
